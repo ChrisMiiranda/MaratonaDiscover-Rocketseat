@@ -83,7 +83,7 @@ const Job = {
             return res.render(views + "job")
         },
         save(req, res) {
-            const lastId = Job.data[Job.data.length - 1]?.id || 1;
+            const lastId = Job.data[Job.data.length - 1]?.id || 0;
 
             Job.data.push({
                 id: lastId + 1,
@@ -119,22 +119,28 @@ const Job = {
             }
 
             const updatedJob = {
-                ...job,
+                ...job, 
                 name: req.body.name,
                 "total-hours": req.body["total-hours"], 
                 "daily-hours": req.body["daily-hours"], 
             }
 
             Job.data = Job.data.map(job => {
-
-                if (Number(job.id) === Number(jobId)) {
-                    job = updatedJob
+                if(Number(job.id) === Number(jobId)) {
+                job = updatedJob
                 }
-
+                
                 return job
             })
 
             res.redirect('/job/' + jobId)
+        },
+        delete(req, res) {
+            const jobId = req.params.id
+
+            Job.data = Job.data.filter(job => Number(job.id) !== Number(jobId))
+
+            return res.redirect('/')
         }
     },
     services: {
@@ -165,7 +171,8 @@ routes.get('/job', Job.controllers.create)
 routes.post('/job', Job.controllers.save)
 
 routes.get('/job/:id', Job.controllers.show )
-routes.post('/job/:id', Job.controllers.show )
+routes.post('/job/:id', Job.controllers.update)
+routes.post('/job/delete/:id', Job.controllers.delete)
 
 routes.get('/profile', Profile.controllers.index)
 routes.post('/profile', Profile.controllers.update)
